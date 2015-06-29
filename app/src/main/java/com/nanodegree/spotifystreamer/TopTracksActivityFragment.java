@@ -74,6 +74,10 @@ public class TopTracksActivityFragment extends Fragment {
         }
     }
 
+    /**
+     * Creates top tracks adapter and sets the adapter to the listview
+     * @param topTracks
+     */
     private void processTopTracksData(Tracks topTracks) {
         if ((topTracks == null) || (topTracks.tracks.size() == 0)) {
             Toast.makeText(getActivity(), getActivity().getString(R.string.no_top_tracks_found_err_msg) + artistName, Toast.LENGTH_SHORT).show();

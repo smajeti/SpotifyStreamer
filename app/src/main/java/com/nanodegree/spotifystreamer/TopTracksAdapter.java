@@ -55,7 +55,12 @@ public class TopTracksAdapter extends ArrayAdapter<Track> {
         return rootView;
     }
 
-
+    /**
+     * Pick last but one image size, based on observation it is roughly 200x200 size,
+     * this not scientific but a heuristic
+     * @param images
+     * @return
+     */
     private int getImageSizeIndex(List<Image> images) {
         if (images.size() > 1) {
             return images.size() - 2;
