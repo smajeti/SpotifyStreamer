@@ -11,4 +11,7 @@
     <string name="artist_list_view_pos_key">ArtistListViewPosition</string>
     <string name="default_artist_country_code">us</string>
     <string name="no_top_tracks_found_err_msg">"Couldn't find top tracks for artist "</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="country_code_key">artist_country_code_key</string>
+    <string name="country_code_label">Country Code</string>
 </resources>

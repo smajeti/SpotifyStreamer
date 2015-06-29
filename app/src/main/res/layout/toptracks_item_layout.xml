@@ -6,7 +6,8 @@
     <ImageView
         android:id="@+id/albumImgId"
         android:layout_width="150dp"
-        android:layout_height="200dp" />
+        android:layout_height="200dp"
+        android:scaleType="centerInside"/>
 
     <LinearLayout
         android:layout_toRightOf="@id/albumImgId"

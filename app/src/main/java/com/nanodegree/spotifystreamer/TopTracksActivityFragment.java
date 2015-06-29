@@ -3,7 +3,9 @@ package com.nanodegree.spotifystreamer;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,7 +56,10 @@ public class TopTracksActivityFragment extends Fragment {
         }
 
         if (fetchedTracks == null) {
-            fetchTopTracks(artistId, getActivity().getString(R.string.default_artist_country_code));
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String countryCode = sharedPref.getString(getActivity().getString(R.string.country_code_key),
+                                                getActivity().getString(R.string.default_artist_country_code));
+            fetchTopTracks(artistId, countryCode);
         } else {
             processTopTracksData(fetchedTracks);
         }
