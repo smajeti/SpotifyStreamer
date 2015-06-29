@@ -1,6 +1,7 @@
 package com.nanodegree.spotifystreamer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import kaaes.spotify.webapi.android.models.Image;
  * Created by smajeti on 6/25/15.
  */
 public class ArtistsAdapter extends ArrayAdapter<Artist> {
+    private static String TAG = ArtistsAdapter.class.getSimpleName();
     private List<Artist> artistList;
     private Context context;
 
@@ -43,7 +45,15 @@ public class ArtistsAdapter extends ArrayAdapter<Artist> {
         ImageView artistImg = (ImageView) rootView.findViewById(R.id.artistImgViewId);
         if ((artist.images != null) && (artist.images.size() > 0)) {
             int imgIndx = getImageSizeIndex(artist.images);
-            Picasso.with(context).load(artist.images.get(imgIndx).url).into(artistImg);
+            try {
+                String imgUrlStr = artist.images.get(imgIndx).url;
+                if ((imgUrlStr != null) && (!imgUrlStr.isEmpty())) {
+                    Picasso.with(context).load(imgUrlStr).into(artistImg);
+                }
+            } catch (Exception ex) {
+                // ignore the exception
+                Log.d(TAG, "error", ex);
+            }
         }
 
         return rootView;

@@ -1,6 +1,8 @@
 package com.nanodegree.spotifystreamer;
 
 import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,9 @@ import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Image;
@@ -21,6 +26,8 @@ import kaaes.spotify.webapi.android.models.Track;
  * Created by smajeti on 6/28/15.
  */
 public class TopTracksAdapter extends ArrayAdapter<Track> {
+
+    private static String TAG = TopTracksActivity.class.getSimpleName();
 
     private Context context;
     private List<Track> tracksList;
@@ -49,7 +56,15 @@ public class TopTracksAdapter extends ArrayAdapter<Track> {
         ImageView albumImg = (ImageView) rootView.findViewById(R.id.albumImgId);
         if ((track.album.images != null) && (track.album.images.size() > 0)) {
             int imgIndx = getImageSizeIndex(track.album.images);
-            Picasso.with(context).load(track.album.images.get(imgIndx).url).into(albumImg);
+            try {
+                String imgUrlStr = track.album.images.get(imgIndx).url;
+                if ((imgUrlStr != null) && (!imgUrlStr.isEmpty())) {
+                    Picasso.with(context).load(imgUrlStr).into(albumImg);
+                }
+            } catch (Exception ex) {
+                // ignore the exception
+                Log.d(TAG, "error", ex);
+            }
         }
 
         return rootView;
