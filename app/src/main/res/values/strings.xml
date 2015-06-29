@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Spotify Streamer</string>
+    <string name="action_settings">Settings</string>
+    <string name="search_hint">artist name</string>
+    <string name="progress_dlg_msg_txt">Fetching Data from Spotify cloud ...</string>
+    <string name="empty_artists_search_msg_txt">Artist search found no records, try with different name</string>
+    <string name="title_activity_top_tracks">Top 10 Tracks</string>
+    <string name="artist_name_key">ArtistNameKey</string>
+    <string name="artist_id_key">ArtistIdKey</string>
+    <string name="artist_name_search_str_key">ArtistSearchStr</string>
+    <string name="artist_list_view_pos_key">ArtistListViewPosition</string>
+    <string name="default_artist_country_code">us</string>
+    <string name="no_top_tracks_found_err_msg">"Couldn't find top tracks for artist "</string>
+</resources>
