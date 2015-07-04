@@ -40,7 +40,6 @@ public class TopTracksActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Override
@@ -68,9 +67,13 @@ public class TopTracksActivityFragment extends Fragment {
     }
 
     private void fetchTopTracks(String artistId, String countryCode) {
-        if ((artistId != null && !artistId.isEmpty()) && (countryCode != null && !countryCode.isEmpty())) {
-            fetchTask = new FetchTopTracksTask(getActivity());
-            fetchTask.execute(artistId, countryCode);
+        if (UtilClass.isNetworkAvailable(getActivity())) {
+            if ((artistId != null && !artistId.isEmpty()) && (countryCode != null && !countryCode.isEmpty())) {
+                fetchTask = new FetchTopTracksTask(getActivity());
+                fetchTask.execute(artistId, countryCode);
+            }
+        } else {
+            Toast.makeText(getActivity(), getResources().getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -9,11 +9,9 @@
     android:orientation="vertical"
     tools:context=".MainActivityFragment">
 
-    <EditText
+    <SearchView
         android:id="@+id/searchEditTxtId"
-        android:hint="@string/search_hint"
-        android:inputType="text"
-        android:imeOptions="actionSearch"
+        android:queryHint="@string/search_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +21,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,19 +37,13 @@ public class MainActivityFragment extends Fragment {
     private static String TAG = MainActivityFragment.class.getSimpleName();
 
     private SearchForArtistTask searchTask = null;
-    private EditText searchEditText;
+    private SearchView searchEditText;
     private ListView artistListView;
     private String artistSearchStr;
     private int listViewPos = -1;
     private ArtistsPager fetchedArtistData;
 
     public MainActivityFragment() {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Override
@@ -66,22 +63,20 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-        searchEditText = (EditText) rootView.findViewById(R.id.searchEditTxtId);
-        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        searchEditText = (SearchView) rootView.findViewById(R.id.searchEditTxtId);
+        searchEditText.setIconifiedByDefault(false);
+        searchEditText.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    artistSearchStr = v.getText().toString();
-                    listViewPos = -1;
-                    if ((searchTask != null) && (searchTask.getStatus() == AsyncTask.Status.RUNNING)) {
-                        searchTask.cancel(true);
-                    }
-                    fetchArtistData(artistSearchStr);
-                    handled = true;
-                    hideSoftKeyboard(getActivity());
-                }
-                return handled;
+            public boolean onQueryTextSubmit(String s) {
+                listViewPos = -1;
+                artistSearchStr = searchEditText.getQuery().toString();
+                fetchArtistData(artistSearchStr);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
             }
         });
 
@@ -107,6 +102,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+
     /**
      * Saves current user artist search selection and uses them during
      * device rotation or during new activity creation
@@ -122,9 +118,13 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void fetchArtistData(String artistSearchStr) {
-        if ((artistSearchStr != null) && (!artistSearchStr.isEmpty())) {
-            searchTask = new SearchForArtistTask(getActivity());
-            searchTask.execute(artistSearchStr);
+        if (UtilClass.isNetworkAvailable(getActivity())) {
+            if ((artistSearchStr != null) && (!artistSearchStr.isEmpty())) {
+                searchTask = new SearchForArtistTask(getActivity());
+                searchTask.execute(artistSearchStr);
+            }
+        } else {
+            Toast.makeText(getActivity(), getResources().getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -138,7 +138,7 @@ public class MainActivityFragment extends Fragment {
         artistListView.setAdapter(adapter);
         fetchedArtistData = artistsPager;
         if ((artistSearchStr != null) && (!artistSearchStr.isEmpty())) {
-            searchEditText.setText(artistSearchStr);
+            searchEditText.setQuery(artistSearchStr, false);
         }
         if ((listViewPos != -1) && (listViewPos < artistsPager.artists.items.size())) {
             artistListView.setSelection(listViewPos);
