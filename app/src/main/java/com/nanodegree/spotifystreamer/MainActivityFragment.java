@@ -43,6 +43,10 @@ public class MainActivityFragment extends Fragment {
     private int listViewPos = -1;
     private ArtistsPager fetchedArtistData;
 
+    public interface Callback {
+        public void onItemSelected(String artistName, String artistId);
+    }
+
     public MainActivityFragment() {
     }
 
@@ -56,10 +60,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Artist artist = (Artist) adapterView.getItemAtPosition(position);
-                Intent intent = new Intent(getActivity(), TopTracksActivity.class);
-                intent.putExtra(getActivity().getString(R.string.artist_name_key), artist.name);
-                intent.putExtra(getActivity().getString(R.string.artist_id_key), artist.id);
-                getActivity().startActivity(intent);
+                ((Callback)getActivity()).onItemSelected(artist.name, artist.id);
             }
         });
 

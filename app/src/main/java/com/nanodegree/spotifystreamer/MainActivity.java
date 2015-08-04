@@ -6,12 +6,26 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
+
+    private static final String TOP_TACKS_FRAGMENT_TAG = "TOPTRACKSFRAGMENT_TAG";
+    private boolean twoPaneMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (findViewById(R.id.top_tracks_container) != null) {
+            twoPaneMode = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.top_tracks_container, new TopTracksActivityFragment(), TOP_TACKS_FRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            twoPaneMode = false;
+        }
+
     }
 
 
@@ -37,5 +51,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(String artistName, String artistId) {
+        if (twoPaneMode) {
+            Bundle arguments = new Bundle();
+
+            arguments.putString(getString(R.string.artist_name_key), artistName);
+            arguments.putString(getString(R.string.artist_id_key), artistId);
+            TopTracksActivityFragment fragment = new TopTracksActivityFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.top_tracks_container, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, TopTracksActivity.class);
+            intent.putExtra(getString(R.string.artist_name_key), artistName);
+            intent.putExtra(getString(R.string.artist_id_key), artistId);
+            startActivity(intent);
+        }
     }
 }

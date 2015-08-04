@@ -20,9 +20,24 @@ public class TopTracksActivity extends AppCompatActivity {
 
         setTitle(R.string.title_activity_top_tracks);
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            artistName = intent.getExtras().getString(getString(R.string.artist_name_key));
+        if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            if (intent != null) {
+                artistName = intent.getExtras().getString(getString(R.string.artist_name_key), "");
+                artistId = intent.getExtras().getString(getString(R.string.artist_id_key), "");
+            }
+
+            Bundle arguments = new Bundle();
+
+            arguments.putString(getString(R.string.artist_name_key), artistName);
+            arguments.putString(getString(R.string.artist_id_key), artistId);
+            TopTracksActivityFragment fragment = new TopTracksActivityFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.top_tracks_container, fragment)
+                    .commit();
+
+
             android.support.v7.app.ActionBar actionBar = getSupportActionBar();
             actionBar.setSubtitle(artistName);
         }
