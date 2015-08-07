@@ -2,9 +2,10 @@ package com.nanodegree.spotifystreamer;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 
 /**
@@ -34,6 +37,58 @@ public class TopTracksActivityFragment extends Fragment {
     private ListView topTracksLstView;
     private Tracks fetchedTracks;
 
+    public static class SongInfo implements Parcelable {
+
+        public String artistName;
+        public String albumName;
+        public String artWorkUrl;
+        public String previewUrl;
+        public String trackName;
+        public long trackDurationMs;
+
+        public SongInfo() {}
+
+        public static final Parcelable.Creator<SongInfo> CREATOR
+                = new Parcelable.Creator<SongInfo>() {
+            public SongInfo createFromParcel(Parcel in) {
+                return new SongInfo(in);
+            }
+
+            public SongInfo[] newArray(int size) {
+                return new SongInfo[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int flags) {
+            parcel.writeString(artistName);
+            parcel.writeString(albumName);
+            parcel.writeString(artWorkUrl);
+            parcel.writeString(previewUrl);
+            parcel.writeString(trackName);
+            parcel.writeLong(trackDurationMs);
+        }
+
+        private SongInfo(Parcel in) {
+            artistName = in.readString();
+            albumName = in.readString();
+            artWorkUrl = in.readString();
+            previewUrl = in.readString();
+            trackName = in.readString();
+            trackDurationMs = in.readLong();
+        }
+
+    }
+
+    public interface Callback {
+        public void onItemSelected(SongInfo songInfo);
+    }
+
     public TopTracksActivityFragment() {
     }
 
@@ -47,6 +102,23 @@ public class TopTracksActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_tracks, container, false);
         topTracksLstView = (ListView) rootView.findViewById(R.id.topTracksListViewId);
+
+        topTracksLstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Track track = (Track) adapterView.getItemAtPosition(position);
+                SongInfo songInfo = new SongInfo();
+                songInfo.artistName = artistName;
+                songInfo.trackName = track.name;
+                songInfo.albumName = track.album.name;
+                songInfo.artWorkUrl = ((track.album.images != null) &&
+                                        (track.album.images.size() > 0)) ?
+                                         track.album.images.get(0).url : null;
+                songInfo.previewUrl = track.preview_url;
+                songInfo.trackDurationMs = track.duration_ms;
+                ((Callback) getActivity()).onItemSelected(songInfo);
+            }
+        });
 
         Bundle arguments = getArguments();
         if ((arguments != null)) {

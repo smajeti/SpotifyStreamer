@@ -1,12 +1,14 @@
 package com.nanodegree.spotifystreamer;
 
 import android.content.Intent;
+import android.os.Parcelable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, TopTracksActivityFragment.Callback {
 
     private static final String TOP_TACKS_FRAGMENT_TAG = "TOPTRACKSFRAGMENT_TAG";
     private boolean twoPaneMode;
@@ -70,6 +72,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             intent.putExtra(getString(R.string.artist_name_key), artistName);
             intent.putExtra(getString(R.string.artist_id_key), artistId);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onItemSelected(TopTracksActivityFragment.SongInfo songInfo) {
+        if (twoPaneMode) {
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(getString(R.string.songinfo_object_key), songInfo);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            TrackPlayerFragment fragment = new TrackPlayerFragment();
+            fragment.setArguments(arguments);
+            fragment.show(fragmentManager, getString(R.string.track_player_dialog_str));
+        } else {
+            //@todo send intent
         }
     }
 }

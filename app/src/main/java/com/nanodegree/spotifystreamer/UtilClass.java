@@ -16,4 +16,8 @@ public class UtilClass {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    public static boolean isEmptyOrNull(String str) {
+        return ((str == null) || (str.isEmpty()));
+    }
+
 }

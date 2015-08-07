@@ -15,4 +15,9 @@
     <string name="country_code_key">artist_country_code_key</string>
     <string name="country_code_label">Country Code</string>
     <string name="no_internet">No internet connection detected</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="songinfo_object_key">SongInfoObjectKey</string>
+    <string name="track_player_dialog_str">TrackPlayerDialog</string>
 </resources>
