@@ -76,10 +76,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     }
 
     @Override
-    public void onItemSelected(TopTracksActivityFragment.SongInfo songInfo) {
+    public void onItemSelected(TopTracksActivityFragment.SongInfo songInfoArray[], int currentPosition) {
         if (twoPaneMode) {
             Bundle arguments = new Bundle();
-            arguments.putParcelable(getString(R.string.songinfo_object_key), songInfo);
+            arguments.putParcelableArray(getString(R.string.songinfo_object_key), songInfoArray);
+            arguments.putInt(getString(R.string.songinfo_current_pos_key), currentPosition);
             FragmentManager fragmentManager = getSupportFragmentManager();
             TrackPlayerFragment fragment = new TrackPlayerFragment();
             fragment.setArguments(arguments);

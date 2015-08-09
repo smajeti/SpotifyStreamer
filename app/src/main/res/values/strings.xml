@@ -20,4 +20,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="songinfo_object_key">SongInfoObjectKey</string>
     <string name="track_player_dialog_str">TrackPlayerDialog</string>
+    <string name="songinfo_current_pos_key">SongInfoCurrentPositionKey</string>
 </resources>

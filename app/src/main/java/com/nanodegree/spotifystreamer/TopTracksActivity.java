@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
-public class TopTracksActivity extends AppCompatActivity {
+public class TopTracksActivity extends AppCompatActivity implements TopTracksActivityFragment.Callback {
 
     private String artistName;
     private String artistId;
@@ -64,5 +64,10 @@ public class TopTracksActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(TopTracksActivityFragment.SongInfo songInfoArray[], int currentPosition) {
+
     }
 }

@@ -86,7 +86,7 @@ public class TopTracksActivityFragment extends Fragment {
     }
 
     public interface Callback {
-        public void onItemSelected(SongInfo songInfo);
+        public void onItemSelected(SongInfo songInfo[], int currentPosition);
     }
 
     public TopTracksActivityFragment() {
@@ -106,17 +106,13 @@ public class TopTracksActivityFragment extends Fragment {
         topTracksLstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Track track = (Track) adapterView.getItemAtPosition(position);
-                SongInfo songInfo = new SongInfo();
-                songInfo.artistName = artistName;
-                songInfo.trackName = track.name;
-                songInfo.albumName = track.album.name;
-                songInfo.artWorkUrl = ((track.album.images != null) &&
-                                        (track.album.images.size() > 0)) ?
-                                         track.album.images.get(0).url : null;
-                songInfo.previewUrl = track.preview_url;
-                songInfo.trackDurationMs = track.duration_ms;
-                ((Callback) getActivity()).onItemSelected(songInfo);
+                int numTracks = adapterView.getAdapter().getCount();
+                SongInfo songInfoArray[] = SongInfo.CREATOR.newArray(numTracks);
+                for (int indx = 0; indx < numTracks; ++indx) {
+                    Track track = (Track) adapterView.getItemAtPosition(indx);
+                    songInfoArray[indx] = createSongInfo(track);
+                }
+                ((Callback) getActivity()).onItemSelected(songInfoArray, position);
             }
         });
 
@@ -136,6 +132,19 @@ public class TopTracksActivityFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private SongInfo createSongInfo(Track track) {
+        SongInfo songInfo = new SongInfo();
+        songInfo.artistName = artistName;
+        songInfo.trackName = track.name;
+        songInfo.albumName = track.album.name;
+        songInfo.artWorkUrl = ((track.album.images != null) &&
+                (track.album.images.size() > 0)) ?
+                track.album.images.get(0).url : null;
+        songInfo.previewUrl = track.preview_url;
+        songInfo.trackDurationMs = track.duration_ms;
+        return songInfo;
     }
 
     private void fetchTopTracks(String artistId, String countryCode) {
