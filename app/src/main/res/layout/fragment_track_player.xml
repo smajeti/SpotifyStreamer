@@ -6,103 +6,115 @@
     android:orientation="vertical"
     tools:context="com.nanodegree.spotifystreamer.TrackPlayerFragment">
 
-    <TextView
-        android:id="@+id/artist_name_txt_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed"
-        android:text="Artist Name"
-        android:textAppearance="?android:textAppearanceSmall" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/album_name_txt_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed"
-        android:text="album name"
-        android:textAppearance="?android:textAppearanceSmall" />
-
-    <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/album_art_img_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
             <TextView
-                android:id="@+id/track_name_txt_id"
+                android:id="@+id/artist_name_txt_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/album_art_img_id"
-                android:layout_centerHorizontal="true"
                 android:fontFamily="sans-serif-condensed"
+                android:text="Artist Name"
                 android:textAppearance="?android:textAppearanceSmall" />
 
-            <SeekBar
-                android:id="@+id/play_seekbar_id"
+            <TextView
+                android:id="@+id/album_name_txt_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/album_art_img_id"
-                android:layout_alignRight="@id/album_art_img_id"
-                android:layout_below="@id/track_name_txt_id"
-                android:layout_centerHorizontal="true" />
+                android:fontFamily="sans-serif-condensed"
+                android:text="album name"
+                android:textAppearance="?android:textAppearanceSmall" />
 
-            <ImageButton
-                android:id="@+id/previous_btn_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/album_art_img_id"
-                android:layout_below="@id/play_seekbar_id"
-                android:layout_marginTop="10dp"
-                android:src="@android:drawable/ic_media_previous" />
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
 
-            <ImageButton
-                android:id="@+id/play_btn_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/play_seekbar_id"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:src="@android:drawable/ic_media_play" />
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
 
-            <ImageButton
-                android:id="@+id/pause_btn_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/play_seekbar_id"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:src="@android:drawable/ic_media_pause"
-                android:visibility="invisible" />
+                    <ImageView
+                        android:id="@+id/album_art_img_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp" />
 
-            <ImageButton
-                android:id="@+id/next_btn_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignRight="@id/album_art_img_id"
-                android:layout_below="@id/play_seekbar_id"
-                android:layout_marginTop="10dp"
-                android:src="@android:drawable/ic_media_next" />
+                    <TextView
+                        android:id="@+id/track_name_txt_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/album_art_img_id"
+                        android:layout_centerHorizontal="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:textAppearance="?android:textAppearanceSmall" />
 
-        </RelativeLayout>
+                    <SeekBar
+                        android:id="@+id/play_seekbar_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@id/album_art_img_id"
+                        android:layout_alignRight="@id/album_art_img_id"
+                        android:layout_below="@id/track_name_txt_id"
+                        android:layout_centerHorizontal="true" />
 
-        <ProgressBar
-            android:id="@+id/wait_progress_bar_id"
-            style="@android:style/Widget.ProgressBar.Large"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:visibility="invisible" />
+                    <ImageButton
+                        android:id="@+id/previous_btn_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@id/album_art_img_id"
+                        android:layout_below="@id/play_seekbar_id"
+                        android:layout_marginTop="10dp"
+                        android:src="@android:drawable/ic_media_previous" />
 
-    </FrameLayout>
+                    <ImageButton
+                        android:id="@+id/play_btn_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/play_seekbar_id"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:src="@android:drawable/ic_media_play" />
 
+                    <ImageButton
+                        android:id="@+id/pause_btn_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/play_seekbar_id"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:src="@android:drawable/ic_media_pause"
+                        android:visibility="invisible" />
+
+                    <ImageButton
+                        android:id="@+id/next_btn_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignRight="@id/album_art_img_id"
+                        android:layout_below="@id/play_seekbar_id"
+                        android:layout_marginTop="10dp"
+                        android:src="@android:drawable/ic_media_next" />
+
+                </RelativeLayout>
+
+                <ProgressBar
+                    android:id="@+id/wait_progress_bar_id"
+                    style="@android:style/Widget.ProgressBar.Large"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:visibility="invisible" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
