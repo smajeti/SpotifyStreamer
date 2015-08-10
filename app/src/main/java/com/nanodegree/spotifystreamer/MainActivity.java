@@ -71,22 +71,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             Intent intent = new Intent(this, TopTracksActivity.class);
             intent.putExtra(getString(R.string.artist_name_key), artistName);
             intent.putExtra(getString(R.string.artist_id_key), artistId);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
     }
 
     @Override
     public void onItemSelected(TopTracksActivityFragment.SongInfo songInfoArray[], int currentPosition) {
-        if (twoPaneMode) {
-            Bundle arguments = new Bundle();
-            arguments.putParcelableArray(getString(R.string.songinfo_object_key), songInfoArray);
-            arguments.putInt(getString(R.string.songinfo_current_pos_key), currentPosition);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            TrackPlayerFragment fragment = new TrackPlayerFragment();
-            fragment.setArguments(arguments);
-            fragment.show(fragmentManager, getString(R.string.track_player_dialog_str));
-        } else {
-            //@todo send intent
-        }
+        // we shouldn't be here in single pane mode, no need to check if we are in two pane mode
+        Bundle arguments = new Bundle();
+        arguments.putParcelableArray(getString(R.string.songinfo_object_key), songInfoArray);
+        arguments.putInt(getString(R.string.songinfo_current_pos_key), currentPosition);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        TrackPlayerFragment fragment = new TrackPlayerFragment();
+        fragment.setArguments(arguments);
+        fragment.show(fragmentManager, getString(R.string.track_player_dialog_str));
     }
 }

@@ -2,6 +2,7 @@ package com.nanodegree.spotifystreamer;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -40,6 +41,7 @@ public class TopTracksActivity extends AppCompatActivity implements TopTracksAct
 
             android.support.v7.app.ActionBar actionBar = getSupportActionBar();
             actionBar.setSubtitle(artistName);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -61,6 +63,9 @@ public class TopTracksActivity extends AppCompatActivity implements TopTracksAct
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -68,6 +73,13 @@ public class TopTracksActivity extends AppCompatActivity implements TopTracksAct
 
     @Override
     public void onItemSelected(TopTracksActivityFragment.SongInfo songInfoArray[], int currentPosition) {
-
+        // we would not come here in two page mode, so send intent here
+        Intent intent = new Intent(this, TrackPlayerActivity.class);
+        Bundle arguments = new Bundle();
+        intent.putExtra(getString(R.string.songinfo_current_pos_key), currentPosition);
+        intent.putExtra(getString(R.string.songinfo_object_key), songInfoArray);
+        intent.putExtra("com.nanodegree.spotifystreamer.SongInfo", arguments);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 }

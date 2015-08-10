@@ -4,6 +4,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,8 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -32,7 +35,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     private ImageButton previousBtn;
     private ImageButton nextBtn;
     private SeekBar playSeekBar;
-    private TopTracksActivityFragment.SongInfo songInfoArray[] = null;
+    private Parcelable songInfoArray[] = null;
     private int currentPosition = -1;
     private PlayCountdownTimer countdownTimer = null;
     private MediaPlayer mediaPlayer;
@@ -41,6 +44,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     private TextView artistNameTxtView;
     private TextView albumNameTxtView;
     private TextView trackNameTxtView;
+    private ProgressBar waitProgressBar;
 
     public TrackPlayerFragment() {
         // Required empty public constructor
@@ -59,9 +63,9 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         Bundle arguments = getArguments();
 
         if (arguments != null) {
-             songInfoArray = (TopTracksActivityFragment.SongInfo[])
-                            arguments.getParcelableArray(getActivity().getString(R.string.songinfo_object_key));
             currentPosition = arguments.getInt(getActivity().getString(R.string.songinfo_current_pos_key));
+            songInfoArray = (Parcelable[])
+                    arguments.getParcelableArray(getActivity().getString(R.string.songinfo_object_key));
         }
 
         if ((songInfoArray == null) || (currentPosition < 0)) {
@@ -91,6 +95,8 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         playSeekBar.setOnSeekBarChangeListener(this);
         setNextPrevButtonState();
 
+        waitProgressBar = (ProgressBar) rootView.findViewById(R.id.wait_progress_bar_id);
+
         return rootView;
     }
 
@@ -119,8 +125,11 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void handlePlayBtnClick() {
-        playBtn.setVisibility(View.INVISIBLE);
-        pauseBtn.setVisibility(View.VISIBLE);
+        if (!UtilClass.isNetworkAvailable(getActivity())) {
+            Toast.makeText(getActivity(), getResources().getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
             playCurrentSong();
         } catch (IOException e) {
@@ -163,12 +172,13 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void setCurrentSongUi() {
-        if ((songInfoArray[currentPosition].artWorkUrl != null) && (!songInfoArray[currentPosition].artWorkUrl.isEmpty())) {
-            Picasso.with(getActivity()).load(songInfoArray[currentPosition].artWorkUrl).into(albumImg);
+        TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
+        if ((songInfo.artWorkUrl != null) && (!songInfo.artWorkUrl.isEmpty())) {
+            Picasso.with(getActivity()).load(songInfo.artWorkUrl).into(albumImg);
         }
-        artistNameTxtView.setText(songInfoArray[currentPosition].artistName);
-        albumNameTxtView.setText(songInfoArray[currentPosition].albumName);
-        trackNameTxtView.setText(songInfoArray[currentPosition].trackName);
+        artistNameTxtView.setText(songInfo.artistName);
+        albumNameTxtView.setText(songInfo.albumName);
+        trackNameTxtView.setText(songInfo.trackName);
     }
 
     void setNextPrevButtonState() {
@@ -186,6 +196,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void releaseResources() {
+        waitProgressBar.setVisibility(View.INVISIBLE);
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
@@ -198,9 +209,11 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void playCurrentSong() throws IOException {
-        if ((songInfoArray == null) || UtilClass.isEmptyOrNull(songInfoArray[currentPosition].previewUrl)) {
+        TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
+        if ((songInfoArray == null) || UtilClass.isEmptyOrNull(songInfo.previewUrl)) {
             return;
         }
+        waitProgressBar.setVisibility(View.VISIBLE);
         if (mediaPlayer == null) {
             createMediaPlayer();
         } else if (!mediaPlayer.isPlaying()){
@@ -210,12 +223,13 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void createMediaPlayer() throws IOException {
+        TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnSeekCompleteListener(this);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setDataSource(songInfoArray[currentPosition].previewUrl);
+        mediaPlayer.setDataSource(songInfo.previewUrl);
         mediaPlayer.prepareAsync();
     }
 
@@ -256,8 +270,11 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
     @Override
     public void onSeekComplete(MediaPlayer mediaPlayer) {
+        waitProgressBar.setVisibility(View.INVISIBLE);
         mediaPlayer.start();
         resetCountdownTimer();
+        playBtn.setVisibility(View.INVISIBLE);
+        pauseBtn.setVisibility(View.VISIBLE);
     }
 
     @Override

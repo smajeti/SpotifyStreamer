@@ -18,7 +18,8 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="songinfo_object_key">SongInfoObjectKey</string>
+    <string name="songinfo_object_key">com.nanodegree.spotifystreamer.SongInfoObjectKey</string>
+    <string name="songinfo_current_pos_key">com.nanodegree.spotifystreamer.SongInfoCurrentPositionKey</string>
     <string name="track_player_dialog_str">TrackPlayerDialog</string>
-    <string name="songinfo_current_pos_key">SongInfoCurrentPositionKey</string>
+    <string name="top_tracks_activity_title">Track Player</string>
 </resources>
