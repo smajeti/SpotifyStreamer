@@ -30,7 +30,6 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
     private int currentPosition = -1;
     private int seekPosition = 0;
     private boolean isPlayPaused = false;
-    private boolean isContinuousPlay = true;
 
 
     public class LocalBinder extends Binder {
@@ -72,20 +71,6 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    public void onCompletion(MediaPlayer mediaPlayer) {
-        prepareForNextSongPlay();
-        if (isContinuousPlay) {
-            ++currentPosition;
-        }
-        isContinuousPlay = true;
-        if (currentPosition >= songInfoArray.length) {
-            callback.onDonePlay();
-            return;
-        }
-        playCurrentSong();
-    }
-
-    @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         seekAndPlay();
     }
@@ -97,6 +82,17 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         if (callback != null) {
             callback.onPlayStarted(currentPosition);
         }
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        prepareForNextSongPlay();
+        ++currentPosition;
+        if (currentPosition >= songInfoArray.length) {
+            callback.onDonePlay();
+            return;
+        }
+        playCurrentSong();
     }
 
     public void setSongInfo(Parcelable songInfoArray[], int currentPosition) {
@@ -139,6 +135,17 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         }
     }
 
+    public void playSong(int position) {
+        currentPosition = position;
+        try {
+            resetMediaPlayer();
+        } catch (IOException e) {
+            if (callback != null) {
+                callback.onError(e);
+            }
+        }
+    }
+
     public void pausePlayback() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
@@ -150,21 +157,13 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         }
     }
 
-    public void playSong(int position) {
-        currentPosition = position;
-        try {
-            isContinuousPlay = false;
-            resetMediaPlayer();
-        } catch (IOException e) {
-            if (callback != null) {
-                callback.onError(e);
-            }
-        }
-    }
-
     private void resetMediaPlayer() throws IOException {
         TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
         if (mediaPlayer.isPlaying()) {
+            if (countdownTimer != null) {
+                countdownTimer.cancel();
+                countdownTimer = null;
+            }
             mediaPlayer.stop();
         }
         mediaPlayer.reset();

@@ -122,7 +122,6 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     @Override
     public void onDetach() {
         super.onDetach();
-        releaseResources();
     }
 
     @Override
@@ -163,19 +162,20 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
     @Override
     public void onPreparingSongPlay(int position) {
+        this.currentPosition = position;
         waitProgressBar.setVisibility(View.VISIBLE);
-        playSeekBar.setEnabled(false);
+        setCurrentSongUi();
+        enableUiElements(false);
     }
-
 
     @Override
     public void onPlayStarted(int position) {
         waitProgressBar.setVisibility(View.INVISIBLE);
-        playSeekBar.setEnabled(true);
+        enableUiElements(true);
         this.currentPosition = position;
-        setCurrentSongUi();
         playBtn.setVisibility(View.INVISIBLE);
         pauseBtn.setVisibility(View.VISIBLE);
+        setNextPrevButtonState();
     }
 
     @Override
@@ -187,6 +187,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     @Override
     public void onError(Exception ex) {
         Toast.makeText(getActivity(), getResources().getString(R.string.error_playing_song), Toast.LENGTH_SHORT).show();
+        enableUiElements(true);
     }
 
     private boolean raiseToastIfNetworkNotAvailable() {
@@ -238,13 +239,10 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void handlePreviousBtnClick() {
-        releaseResources();
         --currentPosition;
         if (currentPosition < 0) {
             currentPosition = 0;
         } else {
-            setCurrentSongUi();
-            resetUiElements();
             if (raiseToastIfNetworkNotAvailable()) {
                 return;
             }
@@ -256,13 +254,10 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     private void handleNextBtnClick() {
-        releaseResources();
         ++currentPosition;
         if (currentPosition >= songInfoArray.length) {
             currentPosition = songInfoArray.length - 1;
         } else {
-            setCurrentSongUi();
-            resetUiElements();
             if (raiseToastIfNetworkNotAvailable()) {
                 return;
             }
@@ -284,7 +279,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         setNextPrevButtonState();
     }
 
-    void setNextPrevButtonState() {
+    private void setNextPrevButtonState() {
         if (currentPosition <= 0) {
             previousBtn.setEnabled(false);
         } else {
@@ -298,13 +293,11 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         }
     }
 
-    private void releaseResources() {
-        waitProgressBar.setVisibility(View.INVISIBLE);
-    }
-
-    private void resetUiElements() {
-        playSeekBar.setProgress(0);
-        playBtn.setVisibility(View.VISIBLE);
-        pauseBtn.setVisibility(View.INVISIBLE);
+    private void enableUiElements(boolean enable) {
+        playSeekBar.setEnabled(enable);
+        playBtn.setEnabled(enable);
+        pauseBtn.setEnabled(enable);
+        nextBtn.setEnabled(enable);
+        previousBtn.setEnabled(enable);
     }
 }
