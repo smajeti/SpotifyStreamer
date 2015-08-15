@@ -14,20 +14,21 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="stateHidden"
-            android:configChanges="orientation|screenSize">
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".TopTracksActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_top_tracks"
             android:launchMode="singleTop"
-            android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -35,9 +36,9 @@
         </activity>
         <activity
             android:name=".TrackPlayerActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/top_tracks_activity_title"
             android:launchMode="singleTop"
-            android:configChanges="orientation|screenSize"
             android:parentActivityName=".TopTracksActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -51,6 +52,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.nanodegree.spotifystreamer.MainActivity" />
         </activity>
+
+        <service
+            android:name=".service.MusicPlayService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

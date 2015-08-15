@@ -22,4 +22,5 @@
     <string name="songinfo_current_pos_key">com.nanodegree.spotifystreamer.SongInfoCurrentPositionKey</string>
     <string name="track_player_dialog_str">TrackPlayerDialog</string>
     <string name="top_tracks_activity_title">Track Player</string>
+    <string name="error_playing_song">encountered errors while playing song</string>
 </resources>
