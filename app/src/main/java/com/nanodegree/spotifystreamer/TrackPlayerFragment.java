@@ -23,6 +23,8 @@ import android.widget.Toast;
 import com.nanodegree.spotifystreamer.service.MusicPlayService;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 
 
@@ -43,6 +45,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     private TextView albumNameTxtView;
     private TextView trackNameTxtView;
     private ProgressBar waitProgressBar;
+    private TextView durationRightTxtView;
     private MusicPlayService playService;
 
     private Parcelable songInfoArray[] = null;
@@ -96,6 +99,8 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         setNextPrevButtonState();
 
         waitProgressBar = (ProgressBar) rootView.findViewById(R.id.wait_progress_bar_id);
+
+        durationRightTxtView = (TextView) rootView.findViewById(R.id.duration_right_id);
 
         setCurrentSongUi();
 
@@ -169,12 +174,13 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     @Override
-    public void onPlayStarted(int position) {
+    public void onPlayStarted(int position, long duration) {
         waitProgressBar.setVisibility(View.INVISIBLE);
         enableUiElements(true);
         this.currentPosition = position;
         playBtn.setVisibility(View.INVISIBLE);
         pauseBtn.setVisibility(View.VISIBLE);
+        durationRightTxtView.setText(String.format("%.2f", duration / 1000.0)); // in seconds
         setNextPrevButtonState();
     }
 
