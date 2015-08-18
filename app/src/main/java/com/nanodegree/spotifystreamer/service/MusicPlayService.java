@@ -39,7 +39,7 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
     }
 
     public interface Callback {
-        void onProgressUpdate(int progress);
+        void onProgressUpdate(int progress, int elapsedTime);
         void onPreparingSongPlay(int position);
         void onPlayStarted(int position, long duration);
         void onDonePlay();
@@ -226,7 +226,8 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
             }
 
             if (callback != null) {
-                callback.onProgressUpdate((int) (mediaPlayer.getCurrentPosition() * 100.0) / mediaPlayer.getDuration());
+                int elapsedTime = mediaPlayer.getCurrentPosition();
+                callback.onProgressUpdate(((int) (mediaPlayer.getCurrentPosition() * 100.0) / mediaPlayer.getDuration()), elapsedTime);
             }
         }
 

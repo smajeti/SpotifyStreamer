@@ -45,8 +45,10 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     private TextView albumNameTxtView;
     private TextView trackNameTxtView;
     private ProgressBar waitProgressBar;
+    private TextView durationLeftTxtView;
     private TextView durationRightTxtView;
     private MusicPlayService playService;
+    private long sampleDuration;
 
     private Parcelable songInfoArray[] = null;
     private int currentPosition = -1;
@@ -100,6 +102,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
         waitProgressBar = (ProgressBar) rootView.findViewById(R.id.wait_progress_bar_id);
 
+        durationLeftTxtView = (TextView) rootView.findViewById(R.id.duration_left_id);
         durationRightTxtView = (TextView) rootView.findViewById(R.id.duration_right_id);
 
         setCurrentSongUi();
@@ -161,8 +164,10 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     }
 
     @Override
-    public void onProgressUpdate(int progress) {
+    public void onProgressUpdate(int progress, int elapsedTime) {
         playSeekBar.setProgress(progress);
+        durationLeftTxtView.setText(String.format("%.2f", elapsedTime / 1000.0)); // in seconds
+        durationRightTxtView.setText(String.format("%.2f", (sampleDuration - elapsedTime) / 1000.0)); // in seconds
     }
 
     @Override
@@ -175,12 +180,13 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
     @Override
     public void onPlayStarted(int position, long duration) {
+        sampleDuration = duration;
         waitProgressBar.setVisibility(View.INVISIBLE);
         enableUiElements(true);
         this.currentPosition = position;
         playBtn.setVisibility(View.INVISIBLE);
         pauseBtn.setVisibility(View.VISIBLE);
-        durationRightTxtView.setText(String.format("%.2f", duration / 1000.0)); // in seconds
+        durationRightTxtView.setText(String.format("%.2f", sampleDuration / 1000.0)); // in seconds
         setNextPrevButtonState();
     }
 
@@ -188,6 +194,8 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     public void onDonePlay() {
         playBtn.setVisibility(View.VISIBLE);
         pauseBtn.setVisibility(View.INVISIBLE);
+        durationLeftTxtView.setText(String.format("%.2f", sampleDuration / 1000.0)); // in seconds
+        durationRightTxtView.setText("0.00");
     }
 
     @Override
@@ -270,6 +278,8 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         artistNameTxtView.setText(songInfo.artistName);
         albumNameTxtView.setText(songInfo.albumName);
         trackNameTxtView.setText(songInfo.trackName);
+        durationLeftTxtView.setText("0.00");
+        durationRightTxtView.setText("0.00");
         setNextPrevButtonState();
     }
 
