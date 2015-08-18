@@ -220,7 +220,7 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
 
         @Override
         public void onTick(long l) {
-            Log.d(TAG, "Countdown timer ontick ");
+//            Log.d(TAG, "Countdown timer ontick ");
             if (mediaPlayer == null) {
                 return;
             }

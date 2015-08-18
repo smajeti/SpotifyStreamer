@@ -249,13 +249,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         if (currentPosition < 0) {
             currentPosition = 0;
         } else {
-            if (raiseToastIfNetworkNotAvailable()) {
-                return;
-            }
-            if (playService != null) {
-                playService.setSeekPosition(0);
-                playService.playSong(currentPosition);
-            }
+            playCurrentPosSong();
         }
     }
 
@@ -264,13 +258,7 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         if (currentPosition >= songInfoArray.length) {
             currentPosition = songInfoArray.length - 1;
         } else {
-            if (raiseToastIfNetworkNotAvailable()) {
-                return;
-            }
-            if (playService != null) {
-                playService.setSeekPosition(0);
-                playService.playSong(currentPosition);
-            }
+            playCurrentPosSong();
         }
     }
 
@@ -305,5 +293,15 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
         pauseBtn.setEnabled(enable);
         nextBtn.setEnabled(enable);
         previousBtn.setEnabled(enable);
+    }
+
+    private void playCurrentPosSong() {
+        if (raiseToastIfNetworkNotAvailable()) {
+            return;
+        }
+        if (playService != null) {
+            playService.setSeekPosition(0);
+            playService.playSong(currentPosition);
+        }
     }
 }
