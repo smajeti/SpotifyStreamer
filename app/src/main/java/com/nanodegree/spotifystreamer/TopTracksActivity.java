@@ -74,12 +74,6 @@ public class TopTracksActivity extends AppCompatActivity implements TopTracksAct
     @Override
     public void onItemSelected(TopTracksActivityFragment.SongInfo songInfoArray[], int currentPosition) {
         // we would not come here in two page mode, so send intent here
-        Intent intent = new Intent(this, TrackPlayerActivity.class);
-        Bundle arguments = new Bundle();
-        intent.putExtra(getString(R.string.songinfo_current_pos_key), currentPosition);
-        intent.putExtra(getString(R.string.songinfo_object_key), songInfoArray);
-        intent.putExtra("com.nanodegree.spotifystreamer.SongInfo", arguments);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        UtilClass.launchTrackplayerAcitivity(this, songInfoArray, currentPosition, false);
     }
 }

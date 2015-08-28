@@ -1,9 +1,15 @@
 package com.nanodegree.spotifystreamer.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -11,8 +17,11 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.nanodegree.spotifystreamer.MainActivity;
+import com.nanodegree.spotifystreamer.R;
 import com.nanodegree.spotifystreamer.TopTracksActivityFragment;
 import com.nanodegree.spotifystreamer.UtilClass;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
@@ -21,6 +30,7 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         MediaPlayer.OnSeekCompleteListener {
 
     public static String TAG = MusicPlayService.class.getSimpleName();
+    public static int NOTIFICATION_ID = 1717;
 
     private final IBinder localBinder = new LocalBinder();
     private MediaPlayer mediaPlayer = new MediaPlayer();
@@ -54,9 +64,16 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        return START_STICKY;
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
         return localBinder;
     }
 
@@ -67,6 +84,7 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         releaseResources();
     }
 
@@ -89,8 +107,13 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         prepareForNextSongPlay();
         ++currentPosition;
         if (currentPosition >= songInfoArray.length) {
-            callback.onDonePlay();
+            startOrStopForeground();
+            if (callback != null) {
+                callback.onDonePlay();
+            }
             return;
+        } else {
+            updateNotification();
         }
         playCurrentSong();
     }
@@ -157,6 +180,29 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         }
     }
 
+    public void startOrStopForeground() {
+        if ((!mediaPlayer.isPlaying()) ) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.cancel(NOTIFICATION_ID);
+            stopForeground(true);
+            return;
+        }
+
+        startForegroundService();
+    }
+
+    public boolean isPlaying() {
+        return mediaPlayer.isPlaying();
+    }
+
+    public int getCurrentPosition() {
+        return currentPosition;
+    }
+
+    public Parcelable[] getSongInfoArray() {
+        return songInfoArray;
+    }
+
     private void resetMediaPlayer() throws IOException {
         TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
         if (mediaPlayer.isPlaying()) {
@@ -212,6 +258,20 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         countdownTimer.start();
     }
 
+    private void startForegroundService() {
+        TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
+        new BitmapLoader(false).execute(songInfo.artWorkUrlSmall);
+    }
+
+    private void updateNotification() {
+        TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
+        new BitmapLoader(true).execute(songInfo.artWorkUrlSmall);
+    }
+
+    private void updateNotification(Bitmap smallImgBitmap) {
+        TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
+    }
+
     private class PlayCountdownTimer extends CountDownTimer {
 
         public PlayCountdownTimer(long millisInFuture, long countDownInterval) {
@@ -234,6 +294,57 @@ public class MusicPlayService extends Service implements MediaPlayer.OnPreparedL
         @Override
         public void onFinish() {
             Log.d(TAG, "Countdown timer finished");
+        }
+    }
+
+    private class BitmapLoader extends AsyncTask<String, Void, Bitmap> {
+        private boolean updateNotification;
+
+        public BitmapLoader(boolean updateNotification) {
+            this.updateNotification = updateNotification;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... artWorkUrls) {
+            String imageUrl = artWorkUrls[0];
+            Bitmap smallImgBitmap = null;
+            if (!UtilClass.isEmptyOrNull(imageUrl)) {
+                try {
+                    smallImgBitmap = Picasso.with(MusicPlayService.this).load(imageUrl).get();
+                } catch (IOException e) {
+                    Log.d(TAG, "Failed to fetch Bitmap", e);
+                }
+            }
+
+            return smallImgBitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap smallImgBitmap) {
+            createNotification(smallImgBitmap);
+        }
+
+        private void createNotification(Bitmap smallImgBitmap) {
+            TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
+            Notification.Builder builder = new Notification.Builder(MusicPlayService.this);
+            builder.setContentTitle(getString(R.string.now_playing_str));
+            builder.setSmallIcon(android.R.drawable.ic_media_play);
+            builder.setLargeIcon(smallImgBitmap);
+            builder.setContentText(songInfo.trackName);
+            builder.setAutoCancel(true);
+            Intent notificationIntent = new Intent(MusicPlayService.this, MainActivity.class);
+            notificationIntent.putExtra(getString(R.string.notification_intent_key), true);
+            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(MusicPlayService.this, 0, notificationIntent, 0);
+            builder.setContentIntent(pendingIntent);
+            Notification notification = builder.build();
+            if (updateNotification) {
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(NOTIFICATION_ID, notification);
+            } else {
+                startForeground(NOTIFICATION_ID, notification);
+            }
+            Log.d(TAG, "created notification");
         }
     }
 

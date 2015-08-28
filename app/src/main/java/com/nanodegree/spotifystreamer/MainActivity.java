@@ -1,7 +1,6 @@
 package com.nanodegree.spotifystreamer;
 
 import android.content.Intent;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,11 +11,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     private static final String TOP_TACKS_FRAGMENT_TAG = "TOPTRACKSFRAGMENT_TAG";
     private boolean twoPaneMode;
+    private boolean launchedFromNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (findViewById(R.id.top_tracks_container) != null) {
             twoPaneMode = true;
             if (savedInstanceState == null) {
@@ -28,8 +29,42 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             twoPaneMode = false;
         }
 
+        Intent intent = getIntent();
+        launchedFromNotification = false;
+        if ((intent != null) && (intent.hasExtra(getString(R.string.notification_intent_key)))) {
+            launchedFromNotification = true;
+        }
+
+        if (launchedFromNotification) {
+            if (twoPaneMode) {
+                Bundle arguments = new Bundle();
+                arguments.putBoolean(getString(R.string.notification_intent_key), true);
+                launchTrackPlayer(arguments);
+            } else {
+                UtilClass.launchTrackplayerAcitivity(this, null, -1, true);
+            }
+        }
     }
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        launchedFromNotification = false;
+        if ((intent != null) && (intent.hasExtra(getString(R.string.notification_intent_key)))) {
+            launchedFromNotification = true;
+        }
+
+        if (launchedFromNotification) {
+            if (twoPaneMode) {
+                Bundle arguments = new Bundle();
+                arguments.putBoolean(getString(R.string.notification_intent_key), true);
+                launchTrackPlayer(arguments);
+            } else {
+                UtilClass.launchTrackplayerAcitivity(this, null, -1, true);
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -82,9 +117,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         Bundle arguments = new Bundle();
         arguments.putParcelableArray(getString(R.string.songinfo_object_key), songInfoArray);
         arguments.putInt(getString(R.string.songinfo_current_pos_key), currentPosition);
+        launchTrackPlayer(arguments);
+    }
+
+    private void launchTrackPlayer(Bundle arguments) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         TrackPlayerFragment fragment = new TrackPlayerFragment();
-        fragment.setArguments(arguments);
+        if (arguments != null) {
+            fragment.setArguments(arguments);
+        }
         fragment.show(fragmentManager, getString(R.string.track_player_dialog_str));
     }
 }

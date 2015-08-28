@@ -23,10 +23,15 @@ public class TrackPlayerActivity extends AppCompatActivity {
             Bundle arguments = null;
             if (intent != null) {
                 int position = intent.getIntExtra(getString(R.string.songinfo_current_pos_key), -1);
-                Parcelable songInfoArray[] = intent.getParcelableArrayExtra(getString(R.string.songinfo_object_key));
+                Parcelable songInfoArray[] = null;
+                if (intent.hasExtra(getString(R.string.songinfo_object_key))) {
+                    songInfoArray = intent.getParcelableArrayExtra(getString(R.string.songinfo_object_key));
+                }
+                boolean fromNotification = intent.getBooleanExtra(getString(R.string.notification_intent_key), false);
                 arguments = new Bundle();
                 arguments.putInt(getString(R.string.songinfo_current_pos_key), position);
                 arguments.putParcelableArray(getString(R.string.songinfo_object_key), songInfoArray);
+                arguments.putBoolean(getString(R.string.notification_intent_key), fromNotification);
             }
             TrackPlayerFragment fragment = new TrackPlayerFragment();
             fragment.setArguments(arguments);

@@ -41,7 +41,8 @@ public class TopTracksActivityFragment extends Fragment {
 
         public String artistName;
         public String albumName;
-        public String artWorkUrl;
+        public String artWorkUrlBig;
+        public String artWorkUrlSmall;
         public String previewUrl;
         public String trackName;
         public long trackDurationMs;
@@ -68,7 +69,8 @@ public class TopTracksActivityFragment extends Fragment {
         public void writeToParcel(Parcel parcel, int flags) {
             parcel.writeString(artistName);
             parcel.writeString(albumName);
-            parcel.writeString(artWorkUrl);
+            parcel.writeString(artWorkUrlBig);
+            parcel.writeString(artWorkUrlSmall);
             parcel.writeString(previewUrl);
             parcel.writeString(trackName);
             parcel.writeLong(trackDurationMs);
@@ -77,7 +79,8 @@ public class TopTracksActivityFragment extends Fragment {
         private SongInfo(Parcel in) {
             artistName = in.readString();
             albumName = in.readString();
-            artWorkUrl = in.readString();
+            artWorkUrlBig = in.readString();
+            artWorkUrlSmall = in.readString();
             previewUrl = in.readString();
             trackName = in.readString();
             trackDurationMs = in.readLong();
@@ -139,9 +142,13 @@ public class TopTracksActivityFragment extends Fragment {
         songInfo.artistName = artistName;
         songInfo.trackName = track.name;
         songInfo.albumName = track.album.name;
-        songInfo.artWorkUrl = ((track.album.images != null) &&
-                (track.album.images.size() > 0)) ?
+        int imgListSize = track.album.images.size();
+        songInfo.artWorkUrlBig = ((track.album.images != null) &&
+                (imgListSize > 0)) ?
                 track.album.images.get(0).url : null;
+        songInfo.artWorkUrlSmall = ((track.album.images != null) &&
+                (imgListSize > 0)) ?
+                track.album.images.get(imgListSize - 1).url : null;
         songInfo.previewUrl = track.preview_url;
         songInfo.trackDurationMs = track.duration_ms;
         return songInfo;

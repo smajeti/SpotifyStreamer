@@ -1,15 +1,13 @@
 package com.nanodegree.spotifystreamer;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +20,6 @@ import android.widget.Toast;
 
 import com.nanodegree.spotifystreamer.service.MusicPlayService;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
-
-import java.io.IOException;
 
 
 public class TrackPlayerFragment extends DialogFragment implements View.OnClickListener,
@@ -49,9 +43,11 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     private TextView durationRightTxtView;
     private MusicPlayService playService;
     private long sampleDuration;
+    private boolean launchedFromNotification;
 
     private Parcelable songInfoArray[] = null;
     private int currentPosition = -1;
+
 
     public TrackPlayerFragment() {
         // Required empty public constructor
@@ -60,6 +56,9 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent startIntent = new Intent(getActivity(), MusicPlayService.class);
+        getActivity().startService(startIntent);
+        Log.d(TAG, "Starting service");
     }
 
     @Override
@@ -69,14 +68,14 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
         Bundle arguments = getArguments();
 
+        launchedFromNotification = false;
         if (arguments != null) {
-            currentPosition = arguments.getInt(getActivity().getString(R.string.songinfo_current_pos_key));
-            songInfoArray = (Parcelable[])
-                    arguments.getParcelableArray(getActivity().getString(R.string.songinfo_object_key));
-        }
-
-        if ((songInfoArray == null) || (currentPosition < 0)) {
-            return rootView;
+            currentPosition = arguments.getInt(getActivity().getString(R.string.songinfo_current_pos_key), -1);
+            if (arguments.containsKey(getActivity().getString(R.string.songinfo_object_key))) {
+                songInfoArray = (Parcelable[])
+                        arguments.getParcelableArray(getActivity().getString(R.string.songinfo_object_key));
+            }
+            launchedFromNotification = arguments.getBoolean(getActivity().getString(R.string.notification_intent_key), false);
         }
 
         albumImg = (ImageView) rootView.findViewById(R.id.album_art_img_id);
@@ -98,14 +97,18 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
         playSeekBar = (SeekBar) rootView.findViewById(R.id.play_seekbar_id);
         playSeekBar.setOnSeekBarChangeListener(this);
-        setNextPrevButtonState();
+        if (!launchedFromNotification) {
+            setNextPrevButtonState();
+        }
 
         waitProgressBar = (ProgressBar) rootView.findViewById(R.id.wait_progress_bar_id);
 
         durationLeftTxtView = (TextView) rootView.findViewById(R.id.duration_left_id);
         durationRightTxtView = (TextView) rootView.findViewById(R.id.duration_right_id);
 
-        setCurrentSongUi();
+        if (!launchedFromNotification) {
+            setCurrentSongUi();
+        }
 
         return rootView;
     }
@@ -114,22 +117,19 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
     public void onResume() {
         super.onResume();
         Intent bindIntent = new Intent(getActivity(), MusicPlayService.class);
-        getActivity().bindService(bindIntent, this, Context.BIND_AUTO_CREATE);
+        getActivity().bindService(bindIntent, this, 0);
+        Log.d(TAG, "Binding to service");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
         if (playService != null) {
+            playService.startOrStopForeground();
             getActivity().unbindService(this);
-            playService = null;
+            playService.setCallback(null);
+            Log.d(TAG, "unbound service");
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override
@@ -152,14 +152,27 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+        Log.d(TAG, "onServiceConnected");
         playService = ((MusicPlayService.LocalBinder)iBinder).getService();
+        if (launchedFromNotification) {
+            songInfoArray = playService.getSongInfoArray();
+            currentPosition = playService.getCurrentPosition();
+            setNextPrevButtonState();
+            setCurrentSongUi();
+            if (playService.isPlaying()) {
+                playBtn.setVisibility(View.INVISIBLE);
+                pauseBtn.setVisibility(View.VISIBLE);
+            }
+        } else {
+            playService.setSeekPosition(0);
+            handlePlayBtnClick();
+        }
         playService.setCallback(this);
-        playService.setSeekPosition(0);
-        handlePlayBtnClick();
     }
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
+        Log.d(TAG, "onServiceDisconnected");
         playService = null;
     }
 
@@ -272,8 +285,8 @@ public class TrackPlayerFragment extends DialogFragment implements View.OnClickL
 
     private void setCurrentSongUi() {
         TopTracksActivityFragment.SongInfo songInfo = (TopTracksActivityFragment.SongInfo) songInfoArray[currentPosition];
-        if ((songInfo.artWorkUrl != null) && (!songInfo.artWorkUrl.isEmpty())) {
-            Picasso.with(getActivity()).load(songInfo.artWorkUrl).into(albumImg);
+        if ((songInfo.artWorkUrlBig != null) && (!songInfo.artWorkUrlBig.isEmpty())) {
+            Picasso.with(getActivity()).load(songInfo.artWorkUrlBig).into(albumImg);
         }
         artistNameTxtView.setText(songInfo.artistName);
         albumNameTxtView.setText(songInfo.albumName);

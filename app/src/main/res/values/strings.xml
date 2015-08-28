@@ -23,4 +23,7 @@
     <string name="track_player_dialog_str">TrackPlayerDialog</string>
     <string name="top_tracks_activity_title">Track Player</string>
     <string name="error_playing_song">encountered errors while playing song</string>
+    <string name="now_playing_str">Now Playing</string>
+    <string name="notification_intent_key">notification_intent_key</string>
+    <string name="trackplayer_arguments_key">com.nanodegree.spotifystreamer.SongInfo</string>
 </resources>
